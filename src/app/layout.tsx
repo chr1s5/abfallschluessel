@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Serif_Display, DM_Mono, DM_Sans } from "next/font/google";
 import "./globals.css";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Nav } from "@/components/Nav";
 
 const dmSerif = DM_Serif_Display({
@@ -67,6 +68,7 @@ export default function RootLayout({
       <body>
         <Nav />
         <main>{children}</main>
+        <SpeedInsights />
         <footer className="footer">
           <div className="footer-inner px">
             <div>
