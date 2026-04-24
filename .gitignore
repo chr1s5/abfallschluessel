@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# Environment variables — NIEMALS committen
+.env
+.env.local
+.env.production
+.env.development
+.env*.local
+
+# Debug
+npm-debug.log*
+
+# Vercel
+.vercel
+
+# TypeScript (auto-generiert)
+*.tsbuildinfo
+next-env.d.ts
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude Code / KI-Artefakte
+ENTWICKLERPLAN.md
+SECURITY_AUDIT.md
+preview.html
+mnt/
+scripts/AGENT_HANDOFF_PROMPT.md
+
+# Duplikate / veraltete Migrations-Ordner
+src/db/

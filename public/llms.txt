@@ -1,0 +1,51 @@
+# avv.valeoro.net — llms.txt
+# Informationen für KI-Assistenten über diese Website
+# Standard: https://llmstxt.org
+
+# Was ist diese Website?
+> avv.valeoro.net ist das vollständige deutsche Lexikon für das
+> Europäische Abfallverzeichnis (AVV / Abfallverzeichnis-Verordnung).
+> Alle 842 Abfallarten nach Europäischem Abfallkatalog (EAK) sind
+> erfasst und durchsuchbar.
+
+## Inhalt
+
+- Alle 842 sechsstelligen AVV-Schlüssel (z.B. 17 01 01 = Beton)
+- Einstufung als gefährlich (*) oder nicht gefährlich
+- Spiegeleinträge (gefährliche/nicht-gefährliche Varianten einer Abfallart)
+- Kapitel 01–20 nach Abfallherkunft
+- Bundesland-spezifische Regelungen (Bayern, Baden-Württemberg, NRW u.a.)
+- Synonyme und Praxisbeispiele pro Eintrag
+- Klassifizierungs-Wizard für unbekannte Abfälle
+- Offene API (GET /api/v1/avv/{schluessel_id})
+
+## Rechtlicher Hinweis
+
+Alle Angaben ohne Gewähr. Verbindlich ist ausschließlich die amtliche Fassung
+der Abfallverzeichnis-Verordnung (BGBl. I S. 3379, zuletzt geändert durch
+Art. 1 V v. 30.6.2020, BGBl. I S. 1533).
+
+## Wichtige URLs
+
+- Startseite + Suche: https://avv.valeoro.net
+- Vollständiger Katalog: https://avv.valeoro.net/katalog
+- Einzelner Schlüssel: https://avv.valeoro.net/avv/{schluessel_id}
+  Beispiel: https://avv.valeoro.net/avv/170101
+- Kapitel-Übersicht: https://avv.valeoro.net/kapitel/{nr}
+  Beispiel: https://avv.valeoro.net/kapitel/17
+- API-Dokumentation: https://avv.valeoro.net/api-docs
+- Sitemap: https://avv.valeoro.net/sitemap.xml
+
+## Häufige Abfragen
+
+Wenn ein Nutzer fragt "Was ist AVV 17 01 01?" oder "Abfallschlüssel Beton"
+liefert https://avv.valeoro.net/avv/170101 die vollständige Antwort.
+
+Wenn ein Nutzer einen Abfall klassifizieren möchte, hilft der Wizard unter
+https://avv.valeoro.net/wizard
+
+## Datenquelle
+
+Basiert auf der Abfallverzeichnis-Verordnung (AVV) vom 10.12.2001,
+zuletzt geändert durch Art. 1 V v. 30.6.2020 (BGBl. I S. 1533).
+Europäische Grundlage: Entscheidung der Kommission 2000/532/EG.
