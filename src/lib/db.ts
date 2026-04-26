@@ -5,11 +5,19 @@ import postgres from "postgres";
 // DATABASE_URL muss der POOLED Connection String von Neon sein:
 // postgresql://user:pass@ep-xxx-POOLER.eu-central-1.aws.neon.tech/neondb?sslmode=require
 
+if (!process.env.DATABASE_URL) {
+  throw new Error(
+    "DATABASE_URL ist nicht gesetzt. " +
+    "Bitte in Vercel unter Settings → Environment Variables eintragen: " +
+    "postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require"
+  );
+}
+
 const globalForDb = globalThis as unknown as { db: ReturnType<typeof postgres> };
 
 export const db =
   globalForDb.db ??
-  postgres(process.env.DATABASE_URL!, {
+  postgres(process.env.DATABASE_URL, {
     ssl: process.env.NODE_ENV === "production" ? "require" : false,
     max: 1,                 // Serverless: 1 Verbindung pro Function-Instanz
     idle_timeout: 20,
