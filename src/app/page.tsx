@@ -3,6 +3,10 @@ import Link from "next/link";
 import { getKapitelUebersicht } from "@/lib/db";
 import { SearchBox } from "@/components/SearchBox";
 
+// ISR: Seite wird beim Build pre-gerendert (evtl. leer wenn DB noch nicht
+// bereit) und danach stündlich mit frischen DB-Daten neu gebaut.
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "AVV Abfallverzeichnis — Vollständige Suche & Lexikon",
   description:

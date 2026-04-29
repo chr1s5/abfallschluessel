@@ -4,18 +4,33 @@ import postgres from "postgres";
 // WICHTIG: Auf Vercel Serverless max: 1 und PgBouncer-kompatibel (prepare: false)
 // DATABASE_URL muss der POOLED Connection String von Neon sein:
 // postgresql://user:pass@ep-xxx-POOLER.eu-central-1.aws.neon.tech/neondb?sslmode=require
+//
+// KEIN throw bei fehlender DATABASE_URL — Next.js führt diesen Code beim Build
+// aus (Static Generation). Ein module-level throw würde den Build crashen und
+// alle Routen mit 404 belegen. Stattdessen geben Query-Funktionen [] / null zurück.
 
-const globalForDb = globalThis as unknown as { db: ReturnType<typeof postgres> };
+if (!process.env.DATABASE_URL) {
+  console.error(
+    "[db] DATABASE_URL ist nicht gesetzt! " +
+    "Bitte in Vercel unter Settings → Environment Variables eintragen. " +
+    "Alle Datenbankabfragen werden leer zurückgeben."
+  );
+}
 
-export const db =
+type Sql = ReturnType<typeof postgres>;
+const globalForDb = globalThis as unknown as { db: Sql | null };
+
+const db: Sql | null =
   globalForDb.db ??
-  postgres(process.env.DATABASE_URL!, {
-    ssl: process.env.NODE_ENV === "production" ? "require" : false,
-    max: 1,                 // Serverless: 1 Verbindung pro Function-Instanz
-    idle_timeout: 20,
-    connect_timeout: 10,
-    prepare: false,         // Wichtig für PgBouncer Transaction Mode (Neon Pooled)
-  });
+  (process.env.DATABASE_URL
+    ? postgres(process.env.DATABASE_URL, {
+        ssl: process.env.NODE_ENV === "production" ? "require" : false,
+        max: 1,           // Serverless: 1 Verbindung pro Function-Instanz
+        idle_timeout: 20,
+        connect_timeout: 10,
+        prepare: false,   // Wichtig für PgBouncer Transaction Mode (Neon Pooled)
+      })
+    : null);
 
 if (process.env.NODE_ENV !== "production") globalForDb.db = db;
 
@@ -82,7 +97,7 @@ export async function searchAvv(
   query: string,
   limit = 20
 ): Promise<SearchResult[]> {
-  if (!query || query.trim().length < 2) return [];
+  if (!db || !query || query.trim().length < 2) return [];
 
   const q = query.trim().slice(0, 100); // Länge begrenzen (DoS-Schutz)
   const safeLimit = Math.max(1, Math.min(limit, 50));
@@ -122,7 +137,7 @@ export async function searchAvv(
 export async function getEintrag(
   schluesselId: string
 ): Promise<AvvEintragMitPartner | null> {
-  if (!isValidSchluesselId(schluesselId)) return null;
+  if (!db || !isValidSchluesselId(schluesselId)) return null;
 
   const rows = await db<AvvEintrag[]>`
     SELECT * FROM avv_eintraege
@@ -133,7 +148,7 @@ export async function getEintrag(
 
   const eintrag = rows[0];
 
-  let partner: Pick<AvvEintrag, "schluessel" | "schluessel_id" | "bezeichnung" | "ist_gefaehrlich"> | null | undefined = null;
+  let partner: Pick<AvvEintrag, "schluessel" | "schluessel_id" | "bezeichnung" | "ist_gefaehrlich"> | null = null;
   if (eintrag.spiegel_partner_id && isValidSchluesselId(eintrag.spiegel_partner_id)) {
     const partnerRows = await db<Pick<AvvEintrag, "schluessel" | "schluessel_id" | "bezeichnung" | "ist_gefaehrlich">[]>`
       SELECT schluessel, schluessel_id, bezeichnung, ist_gefaehrlich
@@ -149,7 +164,7 @@ export async function getEintrag(
 
 /** Alle Einträge eines Kapitels */
 export async function getKapitel(kapitelNr: string): Promise<AvvEintrag[]> {
-  if (!isValidKapitelNr(kapitelNr)) return [];
+  if (!db || !isValidKapitelNr(kapitelNr)) return [];
 
   return db<AvvEintrag[]>`
     SELECT * FROM avv_eintraege
@@ -164,7 +179,7 @@ export async function getVerwandte(
   excludeId: string,
   limit = 6
 ): Promise<SearchResult[]> {
-  if (!isValidGruppeNr(gruppeNr)) return [];
+  if (!db || !isValidGruppeNr(gruppeNr)) return [];
 
   const safeLimit = Math.max(1, Math.min(limit, 20));
 
@@ -181,6 +196,8 @@ export async function getVerwandte(
 
 /** Alle Schlüssel für sitemap + generateStaticParams */
 export async function getAlleSchluessels(): Promise<string[]> {
+  if (!db) return [];
+
   const rows = await db<{ schluessel_id: string }[]>`
     SELECT schluessel_id FROM avv_eintraege ORDER BY schluessel_id
   `;
@@ -189,6 +206,8 @@ export async function getAlleSchluessels(): Promise<string[]> {
 
 /** Kapitel-Übersicht mit Zählern */
 export async function getKapitelUebersicht() {
+  if (!db) return [];
+
   return db<{
     kapitel_nr: string;
     kapitel_name: string;

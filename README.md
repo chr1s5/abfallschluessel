@@ -14,8 +14,7 @@ cp .env.example .env.local
 # → DATABASE_URL in .env.local eintragen (Neon oder lokales Docker)
 
 # 3. Datenbank aufsetzen (einmalig)
-psql $DATABASE_URL -f src/db/schema.sql
-psql $DATABASE_URL -f data/avv.sql
+npm run db:push
 
 # 4. Dev-Server starten
 npm run dev
@@ -28,8 +27,12 @@ npm run dev
 # Vercel CLI
 npm i -g vercel
 vercel login
-vercel                          # erstes Deployment
-vercel env add DATABASE_URL     # Neon Connection String einfügen
+vercel env add DATABASE_URL     # Neon POOLED Connection String eintragen
+                                # Format: postgresql://user:pass@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require
+
+# Datenbank einmalig befüllen (Neon hat noch keine Daten!)
+DATABASE_URL="<dein-neon-url>" npm run db:push
+
 vercel --prod                   # Production Deploy
 ```
 
